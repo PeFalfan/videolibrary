@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +48,23 @@ public class VideoStreamServiceImpl implements VideoStreamService {
                     StatObjectArgs.builder().bucket(bucketName).object(folderName+"/"+fileName).build()
             );
 
+            // Inferir el tipo MIME
+            String mimeType;
+            try {
+                mimeType = Files.probeContentType(Paths.get(folderName+"/"+fileName));
+            } catch (Exception e) {
+                mimeType = null;
+            }
+            if (mimeType == null) {
+                if (fileName.endsWith(".mkv")) {
+                    mimeType = "video/x-matroska";
+                } else if (fileName.endsWith(".mp4")) {
+                    mimeType = "video/mp4";
+                } else {
+                    mimeType = "application/octet-stream";
+                }
+            }
+
             long fileSize = stat.size();
             long start = 0;
             long end = fileSize - 1;
@@ -77,6 +96,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
                            .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                            .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength))
                            .header(HttpHeaders.CONTENT_RANGE, String.format("bytes %d-%d/%d", start, end, fileSize))
+                           .contentType(MediaType.parseMediaType(mimeType))
                            .body(new InputStreamResource(stream));
 
         } catch (Exception e) {
