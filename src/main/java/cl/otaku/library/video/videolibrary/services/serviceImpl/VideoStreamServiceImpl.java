@@ -40,10 +40,10 @@ public class VideoStreamServiceImpl implements VideoStreamService {
     @Override
     public ResponseEntity<InputStreamResource> loadVideo(String folderName, String fileName, String range) {
         try {
-            logger.info("Loading video file: " + fileName);
+            logger.info("Loading video file: " + fileName + " in folder: " + folderName);
             // get the metadata of the object
             var stat = minioClient.statObject(
-                    StatObjectArgs.builder().bucket(bucketName).object(fileName).build()
+                    StatObjectArgs.builder().bucket(bucketName).object(folderName+"/"+fileName).build()
             );
 
             long fileSize = stat.size();
@@ -64,7 +64,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
             InputStream stream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(folderName+fileName)
+                            .object(folderName+"/"+fileName)
                             .offset(start)
                             .length(contentLength)
                             .build()
