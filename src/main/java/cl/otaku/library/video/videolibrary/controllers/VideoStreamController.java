@@ -41,4 +41,14 @@ public class VideoStreamController {
             return new ArrayList<>();
         }
     }
+
+    @GetMapping("/getAvailableSeries")
+    public List<String> getAvailableSeries() {
+        return videoStreamService.getAvailableSeries();
+    }
+
+    @GetMapping("/testVideoService")
+    public String testVideoService() {
+        return "Video service is working";
+    }
 }

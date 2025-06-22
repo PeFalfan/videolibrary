@@ -10,4 +10,6 @@ public interface VideoStreamService {
     ResponseEntity<InputStreamResource> loadVideo(String fileName, String range);
 
     List<String> getAvailableVideos();
+
+    List<String> getAvailableSeries();
 }

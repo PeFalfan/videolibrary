@@ -112,4 +112,29 @@ public class VideoStreamServiceImpl implements VideoStreamService {
         }
         return videoNames;
     }
+
+    @Override
+    public List<String> getAvailableSeries() {
+
+        logger.info("Getting available series...");
+        List<String> seriesNames = new ArrayList<>();
+        try {
+            List<String> allNames = getAvailableVideos();
+            logger.info("available series: " + allNames);
+
+            for (String name : allNames) {
+                String[] parts = name.split("/");
+                if (!seriesNames.contains(parts[0]) ) {
+                    seriesNames.add(parts[0]);
+                }
+            }
+
+            return seriesNames;
+
+        } catch (Exception e) {
+            logger.error("Error while getting available series", e);
+            throw new RuntimeException(e);
+        }
+
+    }
 }
