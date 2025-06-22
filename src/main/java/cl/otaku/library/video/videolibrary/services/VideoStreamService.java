@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface VideoStreamService {
 
-    ResponseEntity<InputStreamResource> loadVideo(String fileName, String range);
+    ResponseEntity<InputStreamResource> loadVideo(String folderName, String fileName, String range);
 
     List<String> getAvailableVideos();
 

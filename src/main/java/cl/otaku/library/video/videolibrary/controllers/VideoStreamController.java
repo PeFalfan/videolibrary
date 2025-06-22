@@ -19,13 +19,14 @@ public class VideoStreamController {
         this.videoStreamService = videoStreamService;
     }
 
-    @GetMapping("/playVideo/{fileName}")
+    @GetMapping("/playVideo/{folderName}/{fileName}")
     public ResponseEntity<InputStreamResource> streamVideo(
             @PathVariable String fileName,
+            @PathVariable String folderName,
             @RequestHeader(value = "Range", required = false) String range) {
         try {
 
-            return videoStreamService.loadVideo(fileName, range);
+            return videoStreamService.loadVideo(folderName, fileName, range);
 
         } catch (Exception e) {
             return ResponseEntity.status(404).build();

@@ -38,7 +38,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
     }
 
     @Override
-    public ResponseEntity<InputStreamResource> loadVideo(String fileName, String range) {
+    public ResponseEntity<InputStreamResource> loadVideo(String folderName, String fileName, String range) {
         try {
             logger.info("Loading video file: " + fileName);
             // get the metadata of the object
@@ -64,7 +64,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
             InputStream stream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(fileName)
+                            .object(folderName+fileName)
                             .offset(start)
                             .length(contentLength)
                             .build()
