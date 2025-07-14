@@ -1,5 +1,6 @@
 package cl.otaku.library.video.videolibrary.controllers;
 
+import cl.otaku.library.video.videolibrary.models.SeriesDataModel;
 import cl.otaku.library.video.videolibrary.services.VideoStreamService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +52,22 @@ public class VideoStreamController {
     @GetMapping("/testVideoService")
     public String testVideoService() {
         return "Video service is working";
+    }
+
+    @GetMapping("/getSeriesData")
+    public List<SeriesDataModel> getSeriesData() {
+        return videoStreamService.getAvailableSeriesData();
+    }
+
+    @GetMapping("/getHighlightedMedia")
+    public List<SeriesDataModel> getHighlightedMedia() {
+        return videoStreamService.getHighlightedMedia();
+    }
+
+    // this method to get the details for one selected series.
+    // we need the name of the series
+    @GetMapping("/getDetails{seriesDetails}")
+    public SeriesDataModel getSeriesDetails(@PathVariable String seriesDetails) {
+        return videoStreamService.getDetails(seriesDetails);
     }
 }
