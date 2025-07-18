@@ -165,56 +165,65 @@ public class VideoStreamServiceImpl implements VideoStreamService {
         return null;
     }
 
-    public List<SeriesDataModel> getTestSeriesData() {
-        List<SeriesDataModel> seriesDataModels = new ArrayList<>();
-        ArrayList<ChapterModel> chapters = new ArrayList<>();
-
-        // de momento es un dummy, mientras se trabaja en la base de datos
-
-        for (int i = 0; i < 24; i++) {
-            ChapterModel chapterModel = new ChapterModel();
-
-            chapterModel.setId((long) i + 1 );
-            chapterModel.setTitle("Titulo capitulo " + i + 1);
-            chapterModel.setChapterNumber(i + 1);
-            chapterModel.setChapterDescription("Descripcion del capitulo " + i + 1);
-            chapterModel.setChapterThumbnailUrl("https://palomaynacho.com/wp-content/uploads/2025/05/Ado-Historia-1536x864.jpg");
-
-            chapters.add(chapterModel);
-        }
-
-        for (int i = 0; i < 200; i++) {
-            SeriesDataModel seriesDataModel = new SeriesDataModel();
-
-            seriesDataModel.setId((long) i);
-            seriesDataModel.setTitle("Seriessssssssssssssssssssssss " + i);
-            seriesDataModel.setCurrentChapters(1);
-            seriesDataModel.setTotalChapters(12);
-            seriesDataModel.setMainTag("Anime " + i);
-            seriesDataModel.setAllTags(new String[]{"tag1", "tag2"});
-            seriesDataModel.setOriginalName("Original name " + i);
-            seriesDataModel.setDescription("Description " + i);
-
-            seriesDataModel.setChapters(chapters);
-            seriesDataModel.setMainImageUrl("https://i.pinimg.com/736x/64/0f/15/640f154748584de5d5f2571dfae07e14.jpg");
-            seriesDataModel.setYearOfRelease(2025);
-
-            seriesDataModels.add(seriesDataModel);
-        }
-
-        return seriesDataModels;
-    }
-
-
     @Override
     public List<SeriesDataModel> getAvailableSeriesData() {
 
-        return getTestSeriesData();
+        // cargo las series disponibles en minIO
+        List<String> availableSeries = getAvailableSeries();
+
+        // ahora cargo los capitulos disponibles desde minIO
+        List<String> highNames = getAvailableVideos();
+
+        // ahora creo el objeto que espero retornar
+        List<SeriesDataModel> availableSeriesList = new ArrayList<>();
+
+        // ahora, elemento por elemento voy sumando series:
+        for (String seriesName : availableSeries) {
+
+            int chapterCount = 0;
+
+            SeriesDataModel seriesDataModel = new SeriesDataModel();
+            ArrayList<ChapterModel> chapters = new ArrayList<>();
+            seriesDataModel.setId((long) availableSeries.indexOf(seriesName));
+            seriesDataModel.setTitle(seriesName);
+            seriesDataModel.setChapters(chapters);
+
+
+            for (String highName : highNames) {
+                if (highName.startsWith(seriesName)) {
+                    chapterCount++;
+                    seriesDataModel.setCurrentChapters(chapterCount);
+                    seriesDataModel.setTotalChapters(chapterCount);
+                    // De momento, el main tag será anime, se va a cargar un archivo en minIO con esta info a futuro
+                    // o cuando exista un backoffice para poder cargar las series en un flujo más definido.
+                    // lo mismo para todos los elementos de este cuadro
+                    seriesDataModel.setMainTag("Anime");
+                    seriesDataModel.setAllTags(new String[]{"Anime", "Seinen"});
+                    seriesDataModel.setOriginalName(highName);
+                    seriesDataModel.setDescription("place holder description " + highName);
+                    // se agrega un capítulo por cada elemento de highName
+                    seriesDataModel.getChapters().add(new ChapterModel(
+                            (long) highNames.indexOf(highName),
+                            getChapterName(highName),
+                            highNames.indexOf(highName),
+                            "place holder chapter description",
+                            "https://i.pinimg.com/736x/64/0f/15/640f154748584de5d5f2571dfae07e14.jpg"
+                    ));
+                    seriesDataModel.setMainImageUrl("https://i.pinimg.com/736x/64/0f/15/640f154748584de5d5f2571dfae07e14.jpg");
+                    seriesDataModel.setYearOfRelease(2025);
+
+                }
+            }
+
+            availableSeriesList.add(seriesDataModel);
+
+        }
+
+        return availableSeriesList;
     }
 
     @Override
     public List<SeriesDataModel> getHighlightedMedia() {
-        // List<SeriesDataModel> high = getTestSeriesData();
 
         // cargo las series disponibles en minIO
         List<String> availableSeries = getAvailableSeries();
