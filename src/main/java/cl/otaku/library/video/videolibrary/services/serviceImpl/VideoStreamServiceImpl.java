@@ -44,7 +44,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
     @Override
     public ResponseEntity<InputStreamResource> loadVideo(String folderName, String fileName, String range) {
         try {
-            logger.info("Loading video file: " + fileName + " in folder: " + folderName);
+            logger.info("Loading video file: {} in folder: {}", fileName, folderName);
             // get the metadata of the object
             var stat = minioClient.statObject(
                     StatObjectArgs.builder().bucket(bucketName).object(folderName+"/"+fileName).build()
@@ -91,7 +91,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
                             .build()
             );
 
-            logger.info("loaded video file: " + fileName);
+            logger.info("loaded video file: {}", fileName);
 
             return ResponseEntity.status(range != null ? 206 : 200)
                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -102,7 +102,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
                            .body(new InputStreamResource(stream));
 
         } catch (Exception e) {
-            logger.error("Error while loading video file: " + fileName, e);
+            logger.error("Error while loading video file: {}", fileName, e);
             throw new RuntimeException(e);
         }
     }
@@ -126,7 +126,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
                 videoNames.add(item.objectName());
             }
 
-            logger.info("available videos: " + videoNames);
+            logger.info("available videos: {}", videoNames);
 
         } catch (Exception e) {
             logger.error("Error while getting available videos", e);
@@ -142,7 +142,7 @@ public class VideoStreamServiceImpl implements VideoStreamService {
         List<String> seriesNames = new ArrayList<>();
         try {
             List<String> allNames = getAvailableVideos();
-            logger.info("available series: " + allNames);
+            logger.info("available series: {}", allNames);
 
             for (String name : allNames) {
                 String[] parts = name.split("/");
@@ -262,15 +262,16 @@ public class VideoStreamServiceImpl implements VideoStreamService {
 
                 }
             }
-            highlightedSeriesList.add(seriesDataModel);
+
+            if (highlightedSeriesList.size() < 5) {
+                highlightedSeriesList.add(seriesDataModel);
+            } else {
+                break;
+            }
+
         }
 
         return highlightedSeriesList;
-    }
-
-    public String getSeriesName(String name) {
-        String[] parts = name.split("/");
-        return parts[0];
     }
 
     public String getChapterName(String name) {
